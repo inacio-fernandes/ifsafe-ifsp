@@ -10,5 +10,5 @@ app.use(express.json());
 app.use("/home", home);
 
 // connection
-const port = process.env.PORT || 9001;
+const port = 9001;
 app.listen(port, () => console.log(`Listening to port ${port}`));
