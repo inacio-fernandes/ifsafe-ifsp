@@ -8,6 +8,7 @@ app.use(express.json());
 
 // Routes
 app.use("/home", home);
+app.use("/users", users);
 
 // connection
 const port = 9001;
