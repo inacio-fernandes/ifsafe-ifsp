@@ -1,8 +1,6 @@
 const { MongoClient } = require("mongodb");
 
-const MONGODB_URI =
-  "mongodb+srv://vercel-admin-user:9mJdEoQrfRNWL0ZC@cluster0.pn6kvst.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
+let MONGODB_URI;
 let db;
 
 async function conectarAoMongoDB() {
@@ -13,9 +11,8 @@ async function conectarAoMongoDB() {
     });
 
     db = client.db("ifsafe-ifsp");
-    
+
     console.log("Conectado ao MongoDB");
-    
   } catch (error) {
     console.error("Erro na conexão com o MongoDB:", error);
     throw error;
