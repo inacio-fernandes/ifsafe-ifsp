@@ -1,6 +1,6 @@
 const { MongoClient } = require("mongodb");
 
-const MONGODB_URI = "mongodb+srv://vercel-admin-user:2M9VYX2W5hmjHFSz@cluster0.pn6kvst.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+let MONGODB_URI;
 let db;
 
 async function conectarAoMongoDB() {
