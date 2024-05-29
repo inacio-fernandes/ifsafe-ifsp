@@ -1,7 +1,10 @@
 const express = require("express");
 const { getDB } = require("../coneccaobd");
 const router = express.Router();
+const { ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
 const { conectarAoMongoDB } = require("../coneccaobd");
+const authMiddleware = require("../jwt/authMiddleware");
 
 // GET /users
 router.get("/", async (req, res) => {
@@ -18,22 +21,26 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST /users
+
+
 router.post("/", async (req, res) => {
   try {
-    console.log(req.body);
-    if (
-      !req.body.hasOwnProperty("email") ||
-      !req.body.hasOwnProperty("password")
-    ) {
-      return res.status(400).send("O usuário não possui senha ou e-mail");
+    const { email, password, name } = req.body;
+
+    if (!email || !password || !name) {
+      return res
+        .status(400)
+        .send("Todos os campos (email, password, name) são necessários");
     }
 
-    const newUser = req.body;
-    await conectarAoMongoDB();
-    console.log(newUser);
+    const newUser = {
+      email,
+      password,
+      name,
+    };
 
-    await getDB().collection("users").insertOne(newUser); // Insere o alerta na collection
+    await conectarAoMongoDB();
+    await getDB().collection("users").insertOne(newUser); // Insere o usuário na coleção
     res.status(201).send("Usuário criado com sucesso!"); // Use 201 for created resources
   } catch (error) {
     console.error("Erro ao criar usuário:", error);
@@ -41,19 +48,36 @@ router.post("/", async (req, res) => {
   }
 });
 
-// PUT /users/:id
-router.put("/:id", async (req, res) => {
+
+
+
+const verifyIdenty = (req, res, next) => {
+
+  const userIdFromToken = req.user.id;
+  const userIdFromParams = req.params.id;
+
+    if (userIdFromToken !== userIdFromParams) {
+      return res
+        .status(403)
+        .send("Você não tem permissão para atualizar este usuário");
+    }
+  next();
+};
+
+
+// PUT /users/:id - Atualiza a senha com um ID específico
+router.put("/:id",authMiddleware ,verifyIdenty, async (req, res) => {
   try {
-    const userId = req.params.id;
-    const updateData = req.body; // Assuming you have update data in the request body
+
+    const userIdFromParams = req.params.id;
+    const { password } = req.body;
+
+    const updateData = { password };
 
     await conectarAoMongoDB();
     const result = await getDB()
       .collection("users")
-      .updateOne(
-        { _id: ObjectId(userId) }, // Use ObjectId for MongoDB ID handling
-        { $set: updateData } // Assuming you want to update specific fields using $set
-      );
+      .updateOne({ _id: ObjectId(userIdFromParams) }, { $set: updateData });
 
     if (result.matchedCount === 0) {
       return res.status(404).send("Usuário não encontrado");
@@ -67,3 +91,4 @@ router.put("/:id", async (req, res) => {
 });
 
 module.exports = router;
+

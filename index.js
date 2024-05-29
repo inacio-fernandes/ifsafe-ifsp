@@ -1,18 +1,20 @@
-// Import packages
 const express = require("express");
 const home = require("./routes/home");
-const users = require("./routes/users" );
+const users = require("./routes/users");
 const posts = require("./routes/posts");
+const auth = require("./jwt/auth");
+const authMiddleware = require("./jwt/authMiddleware");
+
 // Middlewares
 const app = express();
 app.use(express.json());
 
 // Routes
+app.use("/auth", auth); // Rota de autenticação
 app.use("/home", home);
 app.use("/users", users);
-app.use("/posts", posts);
+app.use("/posts", authMiddleware, posts); // Protege a rota de posts
 
-// connection
+// Connection
 const port = 3000;
 app.listen(port, () => console.log(`Listening to port ${port}`));
-
