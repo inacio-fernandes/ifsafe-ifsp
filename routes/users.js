@@ -21,7 +21,22 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
 
+    await conectarAoMongoDB();
+    const user = await getDB().collection("users").findOne({ _id: ObjectId(userId) });
+    if (!user) {
+      return res.status(404).send("Usuário não encontrado");
+    }
+
+    res.status(200).send(user.name);
+  } catch (error) {
+    console.error("Erro ao buscar usuário:", error);
+    res.status(500).send("Erro ao buscar usuário");
+  }
+});
 
 router.post("/", async (req, res) => {
   try {
