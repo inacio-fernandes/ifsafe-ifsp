@@ -21,9 +21,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/id", authMiddleware, async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req.user.id;
 
     await conectarAoMongoDB();
     const user = await getDB().collection("users").findOne({ _id: ObjectId(userId) });
