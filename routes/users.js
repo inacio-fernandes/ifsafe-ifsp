@@ -53,6 +53,12 @@ router.post("/", async (req, res) => {
       password,
       name,
     };
+    const user = await getDB()
+      .collection("users")
+      .findOne({ email: (newUser.email) });
+    if (user) {
+      return res.status(404).send("Email ja cadastrado");
+    } 
 
     await conectarAoMongoDB();
     await getDB().collection("users").insertOne(newUser); // Insere o usuário na coleção
