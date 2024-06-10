@@ -22,14 +22,14 @@ router.post("/", async (req, res) => {
       return res.status(401).send("Email ou senha inválidos 1");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    
     if (user.password !== password) {
       return res.status(401).send("Email ou senha inválidos 2");
     }
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
 
-    res.send({ token });
+    res.send({ token },user._id, user.name);
   } catch (error) {
     console.error("Erro ao fazer login:", error);
     res.status(500).send("Erro ao fazer login");
