@@ -29,7 +29,7 @@ router.post("/", async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
 
-    res.send({ token, user: { id: user._id, email: user.email } });
+    res.send({ token, user: { id: user._id, email: user.email, name: user.name } });
   } catch (error) {
     console.error("Erro ao fazer login:", error);
     res.status(500).send("Erro ao fazer login");
