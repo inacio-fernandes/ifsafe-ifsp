@@ -3,6 +3,7 @@ const router = express.Router();
 const { conectarAoMongoDB, getDB } = require("../coneccaobd");
 const { ObjectId } = require("mongodb");
 
+//pegar todos os posts
 router.get("/", async (req, res) => {
   try {
     await conectarAoMongoDB();
@@ -17,6 +18,9 @@ router.get("/", async (req, res) => {
   }
 });
 
+
+
+//pegar todos os posts de um autor
 router.get("/autor/:id", async (req, res) => {
   try {
     let hora = new Date().toLocaleTimeString();
@@ -59,7 +63,7 @@ router.post("/", validatePostData, async (req, res) => {
       ...req.body,
       autor: req.userId,
       date: new Date(),
-      status: 1,
+      status: "Pendente",
       likes: [],
       coments: []
     };
@@ -72,28 +76,90 @@ router.post("/", validatePostData, async (req, res) => {
   }
 });
 
-// Rota para deletar um post com um ID específico
-router.put("/:id", async (req, res) => {
+// Rota para alterar o STATUS um post com um ID específico
+router.put("/status/:id", async (req, res) => {  
   try {
     await conectarAoMongoDB();
+
+    const { id } = req.params;
+    const { status } = req.body;
+    if (status != "Pendente" || status != "Solucionado" || status != "Cancelado") {
+      return res.status(400).send("Status do post é obrigatório");
+    }
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).send("ID de post inválido");
+    }
+
+    // verifica se o o ususario tem admin: true   
+    const user = await getDB().collection("users").findOne({ _id: ObjectId(req.user) });
+    console.log("user do put", user);
+    if (user.admin !== true) {
+      return res.status(403).send("Você não tem permissão para alterar o status do post");
+    };
+
+
+    await getDB().collection("posts").updateOne(
+      { _id: ObjectId(id) },
+      { $set: { status } }
+    );
+
+    res.send("Status do post alterado com sucesso!");
+  } catch (error) {
+    console.error("Erro ao alterar status do post:", error);
+    res.status(500).send("Erro ao alterar status do post", error);
+  }
+});
+
+//Adicionar um comentario em um post especifico nessa estrutura 
+router.post("/comentarios/:id", async (req, res) => {
+  try {
+    await conectarAoMongoDB();
+
+    const { id } = req.params;
+    const { comentario } = req.body;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).send("ID de post inválido");
+    }
+
+    const newComent = {
+      [req.user.id]: comentario
+    };
+ console.log("newComent", newComent);
+    await getDB().collection("posts").updateOne(
+      { _id: ObjectId(id) },
+      { $push: { comentarios: newComent } }
+    );
+
+    res.send("Comentário adicionado com sucesso!");
+  } catch (error) {
+    console.error("Erro ao adicionar comentário:", error);
+    res.status(500).send("Erro ao adicionar comentário", error);
+  }
+});
+
+
+//Adicionar uma curtida em um post especifico, pega o user.id e adiciona no array de likes
+router.post("/likes/:id", async (req, res) => {
+  try {
+    await conectarAoMongoDB();
+
     const { id } = req.params;
 
     if (!ObjectId.isValid(id)) {
       return res.status(400).send("ID de post inválido");
     }
 
-    const result = await getDB()
-      .collection("posts")
-      .deleteOne({ _id: new ObjectId(id) });
+    await getDB().collection("posts").updateOne(
+      { _id: ObjectId(id) },
+      { $push: { likes: req.user.id } }
+    );
 
-    if (result.deletedCount === 0) {
-      return res.status(404).send("Post não encontrado");
-    }
-
-    res.send("Post deletado com sucesso!");
+    res.send("Like adicionado com sucesso!");
   } catch (error) {
-    console.error("Erro ao deletar post:", error);
-    res.status(500).send("Erro ao deletar post");
+    console.error("Erro ao adicionar like:", error);
+    res.status(500).send("Erro ao adicionar like", error);
   }
 });
 
@@ -109,7 +175,7 @@ function validatePostData(req, res, next) {
   ) {
     return res.status(400).json({ error: "All fields are required" });
   }
-
+  req.body = { description, image, name };
   next();
 }
 

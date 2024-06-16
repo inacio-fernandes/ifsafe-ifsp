@@ -17,4 +17,8 @@ app.use("/posts", authMiddleware, posts); // Protege a rota de posts
 
 // Connection
 const port = 3000;
+//print console quebrar linha
+
 app.listen(port, () => console.log(`Listening to port ${port}`));
+
+console.log("\n\n\n\n\n\n--------------------------------------------------------------");
