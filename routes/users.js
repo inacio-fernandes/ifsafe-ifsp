@@ -98,9 +98,9 @@ router.put("/:id",authMiddleware ,verifyIdenty, async (req, res) => {
     await conectarAoMongoDB();
     //verificar senha antiga com nova senha
     const user = await getDB().collection("users").findOne({ _id: ObjectId(userIdFromParams) });
-      if (result.matchedCount === 0) {
-        return res.status(404).send("Usuário não encontrado");
-      }
+    if (result.matchedCount === 0) {
+      return res.status(404).send("Usuário não encontrado");
+    }
     if ( oldpassword === user.password) {
       return res.status(404).send("Senha antiga nao confere");
     }
@@ -109,7 +109,8 @@ router.put("/:id",authMiddleware ,verifyIdenty, async (req, res) => {
       .collection("users")
       .updateOne({ _id: ObjectId(userIdFromParams) }, { $set: updateData });
 
-    res.status(200).send("Usuário atualizado com sucesso!");
+
+
   } catch (error) {
     console.error("Erro ao atualizar usuário:", error);
     res.status(500).send("Erro ao atualizar usuário");
