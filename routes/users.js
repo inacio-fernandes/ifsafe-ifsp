@@ -2,7 +2,6 @@ const express = require("express");
 const { getDB } = require("../coneccaobd");
 const router = express.Router();
 const { ObjectId } = require("mongodb");
-
 const { conectarAoMongoDB } = require("../coneccaobd");
 const authMiddleware = require("../jwt/authMiddleware");
 
