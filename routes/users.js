@@ -2,7 +2,7 @@ const express = require("express");
 const { getDB } = require("../coneccaobd");
 const router = express.Router();
 const { ObjectId } = require("mongodb");
-const jwt = require("jsonwebtoken");
+
 const { conectarAoMongoDB } = require("../coneccaobd");
 const authMiddleware = require("../jwt/authMiddleware");
 
@@ -53,6 +53,7 @@ router.post("/", async (req, res) => {
       password,
       name,
     };
+    await conectarAoMongoDB();
     const user = await getDB()
       .collection("users")
       .findOne({ email: (newUser.email) });
@@ -60,7 +61,7 @@ router.post("/", async (req, res) => {
       return res.status(404).send("Email ja cadastrado");
     } 
 
-    await conectarAoMongoDB();
+    
     await getDB().collection("users").insertOne(newUser); // Insere o usuário na coleção
     res.status(201).send("Usuário criado com sucesso!"); // Use 201 for created resources
   } catch (error) {
