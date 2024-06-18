@@ -91,7 +91,7 @@ const verifyIdenty = (req, res, next) => {
 router.put("/:id", authMiddleware, verifyIdenty, async (req, res) => {
   try {
     const userIdFromParams = req.params.id;
-    const { newpassword, oldpassword, name } = req.body;
+    const { newpassword, oldpassword, name, avatar } = req.body;
     console.log("body", req.body);  
     const updateData = {};
 
