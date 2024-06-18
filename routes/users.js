@@ -15,7 +15,6 @@ const verifyIdenty = (req, res, next) => {
       .status(403)
       .send("Você não tem permissão para atualizar este usuário");
   }
-  next();
 };
 
 // GET /users - Obtém todos os usuários
@@ -73,14 +72,30 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /users/:id - Atualiza o usuário com um ID específico
-router.put("/:id", authMiddleware, verifyIdenty, async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const userIdFromParams = req.params.id;
     const { newpassword, oldpassword, name, avatar } = req.body;
 
+    await conectarAoMongoDB();
+    const user = await getDB().collection("users").findOne({ _id: ObjectId(userIdFromParams) });
+
+    if (!user) {
+      return res.status(404).send("Usuário não encontrado");
+    }
+
     const updateData = {};
     if (newpassword) {
+       verifyIdenty(req, res);
       updateData.password = newpassword;
+          if (oldpassword !== user.password) {
+            console.log(
+              "Senha antiga:",
+              oldpassword,
+              " Senha do usuário " + user.password
+            );
+            return res.status(400).send("Senha antiga não confere");
+          }
     }
     if (name) {
       updateData.name = name;
@@ -89,18 +104,7 @@ router.put("/:id", authMiddleware, verifyIdenty, async (req, res) => {
       updateData.avatar = avatar;
     }
 
-    await conectarAoMongoDB();
-    const user = await getDB()
-      .collection("users")
-      .findOne({ _id: ObjectId(userIdFromParams) });
 
-    if (!user) {
-      return res.status(404).send("Usuário não encontrado");
-    }
-    if (oldpassword !== user.password) {
-      console.log("Senha antiga:", oldpassword, " Senha do usuário "  + user.password) ; 
-      return res.status(400).send("Senha antiga não confere");
-    }
 
     const result = await getDB()
       .collection("users")
