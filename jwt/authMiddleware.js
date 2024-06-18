@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = "ifsp";
 
 function authMiddleware(req, res, next) {
+  console.log("Auth middleware", req);
   const authHeader = req.header("Authorization");
 
   if (!authHeader) {
