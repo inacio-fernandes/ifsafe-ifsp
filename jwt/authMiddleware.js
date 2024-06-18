@@ -3,7 +3,7 @@ const JWT_SECRET = "ifsp";
 
 function authMiddleware(req, res, next) {
   const authHeader = req.header("Authorization");
-  console.log("req-------------------------------_______________-------______---_____--_____:", req);
+
   if (!authHeader) {
     return res.status(401).send("Acesso negado. Nenhum token fornecido.");
   }

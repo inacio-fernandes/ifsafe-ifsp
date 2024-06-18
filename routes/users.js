@@ -46,7 +46,7 @@ router.post("/", async (req, res) => {
         .status(400)
         .send("Todos os campos (email, password, name) são necessários");
     }
-
+    email = email.toLowerCase();
     const newUser = {
       email,
       password,
@@ -87,30 +87,44 @@ const verifyIdenty = (req, res, next) => {
 
 
 // PUT /users/:id - Atualiza a senha com um ID específico
-router.put("/:id",authMiddleware ,verifyIdenty, async (req, res) => {
+router.put("/:id", authMiddleware, verifyIdenty, async (req, res) => {
   try {
-
     const userIdFromParams = req.params.id;
-    const { newpassword, oldpassword } = req.body;
+    const { newpassword, oldpassword, name } = req.body;
+    console.log("body", req.body);  
+    const updateData = {};
 
-    const updateData = { newpassword };
+    if (newpassword) {
+      updateData.password = newpassword;
+    }
+
+    if (name) {
+      updateData.name = name;
+    }
 
     await conectarAoMongoDB();
-    //verificar senha antiga com nova senha
-    const user = await getDB().collection("users").findOne({ _id: ObjectId(userIdFromParams) });
-    if (result.matchedCount === 0) {
+    console.log("updateData", updateData);
+    const user = await getDB()
+      .collection("users")
+      .findOne({ _id: ObjectId(userIdFromParams) });
+
+    if (!user) {
       return res.status(404).send("Usuário não encontrado");
     }
-    if ( oldpassword === user.password) {
-      return res.status(404).send("Senha antiga nao confere");
+
+    if (oldpassword !== user.password) {
+      return res.status(400).send("Senha antiga não confere");
     }
 
     const result = await getDB()
       .collection("users")
       .updateOne({ _id: ObjectId(userIdFromParams) }, { $set: updateData });
 
+    if (result.matchedCount === 0) {
+      return res.status(404).send("Usuário não encontrado");
+    }
 
-
+    res.status(200).send("Usuário atualizado com sucesso");
   } catch (error) {
     console.error("Erro ao atualizar usuário:", error);
     res.status(500).send("Erro ao atualizar usuário");
