@@ -5,9 +5,11 @@ const posts = require("./routes/posts");
 const auth = require("./jwt/auth");
 const authMiddleware = require("./jwt/authMiddleware");
 
-// Middlewares
 const app = express();
-app.use(express.json());
+
+// Aumentando o limite de tamanho do payload
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Routes
 app.use("/auth", auth); // Rota de autenticação
@@ -17,11 +19,10 @@ app.use("/posts", authMiddleware, posts); // Protege a rota de posts
 
 // Connection
 const port = 3000;
-//print console quebrar linha
-
 app.listen(port, () => console.log(`Listening to port ${port}`));
 
+module.exports = app;
 
-// aumentar o tamanho do payload suportado
-app.use(express.json({ limit: "50mb" }));
-console.log("\n\n\n\n\n\n--------------------------------------------------------------");
+console.log(
+  "\n\n\n\n\n\n--------------------------------------------------------------"
+);
