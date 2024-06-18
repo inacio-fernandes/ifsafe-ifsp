@@ -103,6 +103,10 @@ router.put("/:id", authMiddleware, verifyIdenty, async (req, res) => {
       updateData.name = name;
     }
 
+    if (avatar) {
+      updateData.avatar = avatar;
+    }
+
     await conectarAoMongoDB();
     console.log("updateData", updateData);
     const user = await getDB()
