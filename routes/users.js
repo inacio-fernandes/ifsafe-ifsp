@@ -98,6 +98,7 @@ router.put("/:id", authMiddleware, verifyIdenty, async (req, res) => {
       return res.status(404).send("Usuário não encontrado");
     }
     if (oldpassword !== user.password) {
+      console.log("Senha antiga:", oldpassword, " Senha do usuário "  + user.password) ; 
       return res.status(400).send("Senha antiga não confere");
     }
 
