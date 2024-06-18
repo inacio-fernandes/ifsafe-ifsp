@@ -51,6 +51,7 @@ router.post("/", async (req, res) => {
       email,
       password,
       name,
+      admin: false,
     };
     await conectarAoMongoDB();
     const user = await getDB()
