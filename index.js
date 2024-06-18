@@ -21,4 +21,7 @@ const port = 3000;
 
 app.listen(port, () => console.log(`Listening to port ${port}`));
 
+
+// aumentar o tamanho do payload suportado
+app.use(express.json({ limit: "50mb" }));
 console.log("\n\n\n\n\n\n--------------------------------------------------------------");
