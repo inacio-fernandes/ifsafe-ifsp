@@ -84,7 +84,8 @@ router.post("/", validatePostData, async (req, res) => {
       date: new Date(),
       status: "Pendente",
       likes: [],
-      comments: []
+      comments: [],
+      authorAvatar: req.user.avatar
     };
     await getDB().collection("posts").insertOne(newPost);
 
