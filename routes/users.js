@@ -50,14 +50,14 @@ router.get("/id", authMiddleware, async (req, res) => {
 // POST /users - Cria um novo usuário
 router.post("/", async (req, res) => {
   try {
-    let { email, password, name } = req.body;
+    let { email, password, name, avatar } = req.body;
     if (!email || !password || !name) {
       return res
         .status(400)
-        .send("Todos os campos (email, password, name) são necessários");
+        .send("Todos os campos (email, password, namee avatar) são necessários");
     }
     email = email.toLowerCase();
-    const newUser = { email, password, name, admin: false };
+    const newUser = { email, password, name, admin: false, avatar};
     await conectarAoMongoDB();
     const user = await getDB().collection("users").findOne({ email });
     if (user) {
@@ -88,14 +88,10 @@ router.put("/:id", authMiddleware, async (req, res) => {
     if (newpassword) {
        verifyIdenty(req, res);
       updateData.password = newpassword;
-          if (oldpassword !== user.password) {
-            console.log(
-              "Senha antiga:",
-              oldpassword,
-              " Senha do usuário " + user.password
-            );
-            return res.status(400).send("Senha antiga não confere");
-          }
+    if (oldpassword !== req.user.password) {
+      console.log("Senha antiga:",oldpassword," Senha do usuário ", user.password);
+        return res.status(400).send("Senha antiga não confere");
+    }
     }
     if (name) {
       updateData.name = name;

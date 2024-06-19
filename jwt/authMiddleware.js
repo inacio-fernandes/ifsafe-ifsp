@@ -20,13 +20,14 @@ async function authMiddleware(req, res, next) {
   }
 
   try {
-    
+
     const decoded = jwt.verify(token, JWT_SECRET);
     userId = decoded.id;
     await conectarAoMongoDB();
     const userFromBD = await getDB()
       .collection("users")
       .findOne({ _id: ObjectId(userId) });
+    console.log("User from BD:", userFromBD);
     req.user = userFromBD;
     next();
   } catch (error) {
