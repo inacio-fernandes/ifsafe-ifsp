@@ -155,7 +155,8 @@ router.post("/comments/:id", async (req, res) => {
       commentDate: new Date(),
       userId: req.user._id,
       userName: req.user.name,
-      commentId: ObjectId()
+      commentId: ObjectId(),
+      userAvatar: req.user.avatar
     };
     
     await getDB().collection("posts").updateOne(
