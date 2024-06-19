@@ -61,11 +61,12 @@ router.post("/", validatePostData, async (req, res) => {
 
     const newPost = {
       ...req.body,
-      autor: req.userId,
+      authorId: req.user._id,
+      authorName: req.user.name,
       date: new Date(),
       status: "Pendente",
       likes: [],
-      coments: []
+      comments: []
     };
     await getDB().collection("posts").insertOne(newPost);
 
@@ -177,16 +178,17 @@ router.post("/likes/:id", async (req, res) => {
 
 
 function validatePostData(req, res, next) {
-  const { description, image, name} = req.body;
+  const { description, image, title, location} = req.body;
 
   if (
     ! description ||
     !image ||
-    !name 
+    !title ||
+    ! location
   ) {
     return res.status(400).json({ error: "All fields are required" });
   }
-  req.body = { description, image, name };
+  req.body = { description, image, title, location };
   next();
 }
 
