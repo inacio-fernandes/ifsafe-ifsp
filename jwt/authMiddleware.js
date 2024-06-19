@@ -1,8 +1,10 @@
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = "ifsp";
+const { conectarAoMongoDB, getDB } = require("../coneccaobd");
+const { ObjectId } = require("mongodb");
 
-function authMiddleware(req, res, next) {
-  console.log("Auth middleware", req);
+async function authMiddleware(req, res, next) {
+
   const authHeader = req.header("Authorization");
 
   if (!authHeader) {
@@ -18,11 +20,17 @@ function authMiddleware(req, res, next) {
   }
 
   try {
+    
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
-    console.log("Decoded:", decoded);
+    userId = decoded.id;
+    await conectarAoMongoDB();
+    const userFromBD = await getDB()
+      .collection("users")
+      .findOne({ _id: ObjectId(userId) });
+    req.user = userFromBD;
     next();
   } catch (error) {
+    console.error("Erro ao verificar token:", error);
     res.status(400).send("Token inválido.");
   }
 }

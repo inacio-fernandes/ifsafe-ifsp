@@ -111,25 +111,37 @@ router.put("/status/:id", async (req, res) => {
   }
 });
 
-//Adicionar um comentario em um post especifico nessa estrutura 
-router.post("/comentarios/:id", async (req, res) => {
+//Adicionar um comentario em um post especifico nessa estrutura         "comments": [
+           // {
+             //   "comment": "coment do user tal",
+     //           "commentDate": "2024-05-23T00:00:00.000Z",
+       //         "commentId": "66721400b93437a80dfd85d6",
+     //           "userId": "6653c2f69da963b64426a732",
+         //       "userName": "admin novo"
+       //     }
+     //   ],
+router.post("/comments/:id", async (req, res) => {
   try {
     await conectarAoMongoDB();
 
     const { id } = req.params;
-    const { comentario } = req.body;
+    const { comment } = req.body;
 
     if (!ObjectId.isValid(id)) {
       return res.status(400).send("ID de post inválido");
     }
-
-    const newComent = {
-      [req.user.id]: comentario
+    console.log("req.user", req.user);
+    const newComment = {
+      comment,
+      commentDate: new Date(),
+      userId: req.user._id,
+      userName: req.user.name,
+      commentId: ObjectId()
     };
- console.log("newComent", newComent);
+    
     await getDB().collection("posts").updateOne(
       { _id: ObjectId(id) },
-      { $push: { comentarios: newComent } }
+      { $push: { comments: newComment } }
     );
 
     res.send("Comentário adicionado com sucesso!");
@@ -138,7 +150,6 @@ router.post("/comentarios/:id", async (req, res) => {
     res.status(500).send("Erro ao adicionar comentário", error);
   }
 });
-
 
 //Adicionar uma curtida em um post especifico, pega o user.id e adiciona no array de likes
 router.post("/likes/:id", async (req, res) => {
