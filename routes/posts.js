@@ -19,6 +19,24 @@ router.get("/", async (req, res) => {
 });
 
 
+//pegar um post com id específico 
+router.get("/:id", async (req, res) => {
+  try { 
+    await conectarAoMongoDB();
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).send("ID de post inválido");
+    }
+    const post = await getDB().collection("posts").findOne({ _id: ObjectId(id) });
+    if (!post) {
+      return res.status(404).send("Post não encontrado");
+    }
+    res.status(200).send(post);
+  } catch (error) {
+    res.status(500).send("Erro ao buscar post", error);
+    console.error("Erro ao buscar post:", error);
+  }
+});
 
 //pegar todos os posts de um autor
 router.get("/autor/:id", async (req, res) => {
