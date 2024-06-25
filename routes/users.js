@@ -15,6 +15,9 @@ const verifyIdenty = (req, res, next) => {
       .status(403)
       .send("Você não tem permissão para atualizar este usuário");
   }
+
+  // Se a identidade for verificada com sucesso, chame next() para continuar com a próxima função de middleware ou rota
+  next();
 };
 
 // GET /users - Obtém todos os usuários
@@ -47,6 +50,9 @@ router.get("/id", authMiddleware, async (req, res) => {
   }
 });
 
+
+
+
 // POST /users - Cria um novo usuário
 router.post("/", async (req, res) => {
   try {
@@ -71,8 +77,11 @@ router.post("/", async (req, res) => {
   }
 });
 
+
+
+
 // PUT /users/:id - Atualiza o usuário com um ID específico
-router.put("/:id", authMiddleware, async (req, res) => {
+router.put("/:id", authMiddleware, verifyIdenty, async (req, res) => {
   try {
     const userIdFromParams = req.params.id;
     const { newpassword, oldpassword, name, avatar } = req.body;
@@ -86,12 +95,12 @@ router.put("/:id", authMiddleware, async (req, res) => {
 
     const updateData = {};
     if (newpassword) {
-       verifyIdenty(req, res);
-      updateData.password = newpassword;
-    if (oldpassword !== req.user.password) {
-      console.log("Senha antiga:",oldpassword," Senha do usuário ", user.password);
+      // Não é necessário chamar verifyIdenty(req, res) aqui, pois o middleware já foi executado
+      if (oldpassword !== req.user.password) {
+        console.log("Senha antiga:", oldpassword, " Senha do usuário ", user.password);
         return res.status(400).send("Senha antiga não confere");
-    }
+      }
+      updateData.password = newpassword;
     }
     if (name) {
       updateData.name = name;
@@ -99,8 +108,6 @@ router.put("/:id", authMiddleware, async (req, res) => {
     if (avatar) {
       updateData.avatar = avatar;
     }
-
-
 
     const result = await getDB()
       .collection("users")
@@ -116,5 +123,4 @@ router.put("/:id", authMiddleware, async (req, res) => {
     res.status(500).send("Erro ao atualizar usuário");
   }
 });
-
 module.exports = router;

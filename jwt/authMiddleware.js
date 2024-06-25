@@ -27,7 +27,7 @@ async function authMiddleware(req, res, next) {
     const userFromBD = await getDB()
       .collection("users")
       .findOne({ _id: ObjectId(userId) });
-    console.log("User from BD:", userFromBD);
+
     req.user = userFromBD;
     next();
   } catch (error) {

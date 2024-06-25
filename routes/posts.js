@@ -150,25 +150,28 @@ router.post("/comments/:id", async (req, res) => {
     if (!ObjectId.isValid(id)) {
       return res.status(400).send("ID de post inválido");
     }
-    console.log("req.user", req.user);
+
     const newComment = {
       comment,
       commentDate: new Date(),
       userId: req.user._id,
       userName: req.user.name,
       commentId: ObjectId(),
-      userAvatar: req.user.avatar
+      userAvatar: req.user.avatar,
     };
-    
-    await getDB().collection("posts").updateOne(
-      { _id: ObjectId(id) },
-      { $push: { comments: newComment } }
-    );
+
+    const result = await getDB()
+      .collection("posts")
+      .updateOne({ _id: ObjectId(id) }, { $push: { comments: newComment } });
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).send("ID de post não encontrado");
+    }
 
     res.send("Comentário adicionado com sucesso!");
   } catch (error) {
     console.error("Erro ao adicionar comentário:", error);
-    res.status(500).send("Erro ao adicionar comentário", error);
+    res.status(500).send("Erro ao adicionar comentário");
   }
 });
 
