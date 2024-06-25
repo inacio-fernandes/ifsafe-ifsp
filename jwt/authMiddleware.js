@@ -30,6 +30,7 @@ async function authMiddleware(req, res, next) {
 
     req.user = userFromBD;
     next();
+    console.log("req.user", req.user);
   } catch (error) {
     console.error("Erro ao verificar token:", error);
     res.status(400).send("Token inválido.");

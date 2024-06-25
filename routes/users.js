@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Middleware para verificar a identidade
 const verifyIdenty = (req, res, next) => {
-  const userIdFromToken = req.user.id;
+  const userIdFromToken = req.user._id;
   const userIdFromParams = req.params.id;
 
   if (userIdFromToken !== userIdFromParams) {
