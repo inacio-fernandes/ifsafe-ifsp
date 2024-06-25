@@ -29,6 +29,7 @@ async function authMiddleware(req, res, next) {
       .findOne({ _id: ObjectId(userId) });
 
     req.user = userFromBD;
+    req.user.id = req.user._id.toString();
     next();
     console.log("req.user", req.user);
     console.log("req.user.id", req.user._id.toString());
