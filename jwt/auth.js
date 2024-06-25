@@ -12,11 +12,7 @@ router.post("/", async (req, res) => {
   try {
     await conectarAoMongoDB();
     const { email, password } = req.body;
-    console.log("Email:", email);
-    console.log("Password:", password);
-
     const user = await getDB().collection("users").findOne({ email });
-    console.log("User:", user);
 
     if (!user) {
       return res.status(401).send("Email ou senha inválidos 1");
