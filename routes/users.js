@@ -11,6 +11,8 @@ const verifyIdenty = (req, res, next) => {
   const userIdFromParams = req.params.id;
 
   if (userIdFromToken !== userIdFromParams) {
+    console.log("userIdFromToken", userIdFromToken, "userIdFromParams", userIdFromParams);
+
     return res
       .status(403)
       .send("Você não tem permissão para atualizar este usuário");
