@@ -188,7 +188,7 @@ router.post("/likes/:id", async (req, res) => {
 
     await getDB().collection("posts").updateOne(
       { _id: ObjectId(id) },
-      { $push: { likes: req.user.id } }
+      { $push: { likes: req.user._id } }
     );
 
     res.send("Like adicionado com sucesso!");
