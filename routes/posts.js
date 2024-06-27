@@ -10,6 +10,14 @@ router.get("/", async (req, res) => {
     console.log("req.user", req.user);
     const posts = await getDB().collection("posts").find({});
     const listaPosts = await posts.toArray(); // Convertendo cursor para array
+    //filtrar as seguintes informações: title, location, status, likes
+    listaPosts.map((post) => {
+      post.title = post.title;
+      post.location = post.location;
+      post.status = post.status;
+      post.likes = post.likes.length;
+      return post;
+    });
     console.log(listaPosts);
     res.status(200).send(listaPosts);
   } catch (error) {
@@ -157,7 +165,6 @@ router.post("/comments/:id", async (req, res) => {
       userId: req.user._id,
       userName: req.user.name,
       commentId: ObjectId(),
-      userAvatar: req.user.avatar,
     };
 
     const result = await getDB()
