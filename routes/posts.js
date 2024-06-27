@@ -38,6 +38,7 @@ router.get("/:id", async (req, res) => {
       return res.status(400).send("ID de post inválido");
     }
     const post = await getDB().collection("posts").findOne({ _id: ObjectId(id) });
+    post.likes = post.likes.length();
     if (!post) {
       return res.status(404).send("Post não encontrado");
     }
