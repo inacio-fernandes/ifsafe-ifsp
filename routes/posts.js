@@ -12,10 +12,12 @@ router.get("/", async (req, res) => {
     const listaPosts = await posts.toArray(); // Convertendo cursor para array
     //filtrar as seguintes informações: title, location, status, likes
     listaPosts.map((post) => {
+      post._id = post._id;
       post.title = post.title;
-      post.location = post.location;
       post.status = post.status;
       post.likes = post.likes.length;
+      post.image = post.image;
+      post.date = post.date;
       return post;
     });
     console.log(listaPosts);
