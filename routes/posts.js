@@ -113,7 +113,8 @@ router.put("/status/:id", async (req, res) => {
     await conectarAoMongoDB();
 
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, statusComment } = req.body;
+    
 
     // Verifica se o status é válido
     if (
@@ -121,8 +122,8 @@ router.put("/status/:id", async (req, res) => {
       status !== "Solucionado" &&
       status !== "Cancelado"
     ) {
-      console.log("status", status);
-      return res.status(400).send("Status do post é obrigatório");
+      console.log("status", status, "statusComment",statusComment);
+      return res.status(400).send("Status e statusComment do post é obrigatório");
     }
 
     // Verifica se o ID é válido
@@ -140,7 +141,7 @@ router.put("/status/:id", async (req, res) => {
     // Atualiza o status do post no banco de dados
     const result = await getDB()
       .collection("posts")
-      .updateOne({ _id: new ObjectId(id) }, { $set: { status } });
+      .updateOne({ _id: new ObjectId(id) }, { $set: { status, statusComment } });
 
     if (result.matchedCount === 0) {
       return res.status(404).send("Post não encontrado");
