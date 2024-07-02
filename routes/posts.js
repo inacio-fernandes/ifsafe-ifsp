@@ -108,40 +108,51 @@ router.post("/", validatePostData, async (req, res) => {
 });
 
 // Rota para alterar o STATUS um post com um ID específico
-router.put("/status/:id", async (req, res) => {  
+router.put("/status/:id", async (req, res) => {
   try {
     await conectarAoMongoDB();
 
     const { id } = req.params;
     const { status } = req.body;
-    if (status != "Pendente" && status != "Solucionado" && status != "Cancelado") {
+
+    // Verifica se o status é válido
+    if (
+      status !== "Pendente" &&
+      status !== "Solucionado" &&
+      status !== "Cancelado"
+    ) {
       console.log("status", status);
       return res.status(400).send("Status do post é obrigatório");
     }
 
+    // Verifica se o ID é válido
     if (!ObjectId.isValid(id)) {
       return res.status(400).send("ID de post inválido");
     }
 
-    // verifica se o o ususario tem admin: true   
-    const user = await getDB().collection("users").findOne({ _id: ObjectId(req.user) });
-    console.log("user do put", user);
-    if (user.admin !== true) {
-      return res.status(403).send("Você não tem permissão para alterar o status do post");
-    };
+    // Verifica se o usuário tem permissão de admin
+    if (!req.user || req.user.admin !== true) {
+      return res
+        .status(403)
+        .send("Você não tem permissão para alterar o status do post");
+    }
 
+    // Atualiza o status do post no banco de dados
+    const result = await getDB()
+      .collection("posts")
+      .updateOne({ _id: new ObjectId(id) }, { $set: { status } });
 
-    await getDB().collection("posts").updateOne(
-      { _id: ObjectId(id) },
-      { $set: { status } }
-    );
+    if (result.matchedCount === 0) {
+      return res.status(404).send("Post não encontrado");
+    }
 
     res.send("Status do post alterado com sucesso!");
   } catch (error) {
     console.error("Erro ao alterar status do post:", error);
-    res.status(500).send("Erro ao alterar status do post", error);
+    res.status(500).json({ error: "Erro ao alterar status do post" });
   }
 });
+
 
 //Adicionar um comentario em um post especifico nessa estrutura         "comments": [
            // {
