@@ -120,7 +120,8 @@ router.put("/status/:id", async (req, res) => {
     if (
       status !== "Pendente" &&
       status !== "Solucionado" &&
-      status !== "Cancelado"
+      status !== "Cancelado" 
+      || !statusComment
     ) {
       console.log("status", status, "statusComment",statusComment);
       return res.status(400).send("Status e statusComment do post é obrigatório");
